@@ -1,0 +1,25 @@
+logLevel: info
+
+rtsp: true
+rtspAddress: :8554
+rtspTransports: [tcp]
+rtmp: false
+hls: false
+webrtc: false
+srt: false
+moq: false
+
+authMethod: internal
+authInternalUsers:
+  - user: nvr_salus
+    permissions:
+      - action: read
+        path: salus
+
+paths:
+  salus:
+    rtspTransport: tcp
+    sourceOnDemand: true
+    sourceOnDemandStartTimeout: 15s
+    sourceOnDemandCloseAfter: 10s
+    record: false

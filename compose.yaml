@@ -1,0 +1,18 @@
+name: salus-video-relay
+
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.4
+    restart: unless-stopped
+    ports:
+      - "${RTSP_BIND_IP:-127.0.0.1}:${RTSP_PORT:-18554}:8554/tcp"
+    environment:
+      MTX_PATHS_SALUS_SOURCE: "${ROVER_RTSP_URL:?Define ROVER_RTSP_URL in .env}"
+      MTX_AUTHINTERNALUSERS_0_PASS: "${NVR_PASSWORD:?Define NVR_PASSWORD in .env}"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
