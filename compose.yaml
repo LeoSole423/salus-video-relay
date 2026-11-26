@@ -2,13 +2,15 @@ name: salus-video-relay
 
 services:
   mediamtx:
-    image: bluenviron/mediamtx:1.21.4
+    build:
+      context: .
+      target: media
     restart: unless-stopped
     ports:
       - "${RTSP_BIND_IP:-127.0.0.1}:${RTSP_PORT:-18554}:8554/tcp"
     environment:
-      MTX_PATHS_SALUS_SOURCE: "${ROVER_RTSP_URL:?Define ROVER_RTSP_URL in .env}"
       MTX_AUTHINTERNALUSERS_0_PASS: "${NVR_PASSWORD:?Define NVR_PASSWORD in .env}"
+      MTX_AUTHINTERNALUSERS_1_PASS: "${NVR_PUBLISH_PASSWORD:?Define NVR_PUBLISH_PASSWORD in .env}"
     volumes:
       - ./mediamtx.yml:/mediamtx.yml:ro
     logging:
@@ -16,3 +18,32 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+
+  nvr-control:
+    build:
+      context: .
+      target: control
+    restart: unless-stopped
+    init: true
+    depends_on:
+      - mediamtx
+    environment:
+      ROVER_RTSP_URL: "${ROVER_RTSP_URL:?Define ROVER_RTSP_URL in .env}"
+      ROVER_PTZ_RTSP_URL: "${ROVER_PTZ_RTSP_URL:?Define ROVER_PTZ_RTSP_URL in .env}"
+      ROVER_REAR_RTSP_URL: "${ROVER_REAR_RTSP_URL:?Define ROVER_REAR_RTSP_URL in .env}"
+      NVR_CONTROL_TOKEN: "${NVR_CONTROL_TOKEN:?Define NVR_CONTROL_TOKEN in .env}"
+      NVR_PUBLISH_PASSWORD: "${NVR_PUBLISH_PASSWORD:?Define NVR_PUBLISH_PASSWORD in .env}"
+    networks:
+      - default
+      - nvr-control
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  nvr-control:
+    name: salus-nvr-control
+    internal: true

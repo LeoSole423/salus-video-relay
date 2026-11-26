@@ -14,12 +14,20 @@ authInternalUsers:
   - user: nvr_salus
     permissions:
       - action: read
-        path: salus
+        path: "~^salus(-ptz|-trasera)?$"
+  - user: relay_publisher
+    permissions:
+      - action: publish
+        path: "~^salus(-ptz|-trasera)?$"
+
+pathDefaults:
+  alwaysAvailable: true
+  record: false
 
 paths:
   salus:
-    rtspTransport: tcp
-    sourceOnDemand: true
-    sourceOnDemandStartTimeout: 15s
-    sourceOnDemandCloseAfter: 10s
-    record: false
+    alwaysAvailableFile: /slates/salus.mp4
+  salus-ptz:
+    alwaysAvailableFile: /slates/salus-ptz.mp4
+  salus-trasera:
+    alwaysAvailableFile: /slates/salus-trasera.mp4
